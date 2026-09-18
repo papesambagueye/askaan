@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { --ink: #161616; --paper: #f6f4ef; --yellow: #f7c844; --line: #d9d6cd; --muted: #77746d; }
+* { box-sizing: border-box; }
+html { background: var(--paper); scroll-behavior: smooth; }
+body { margin: 0; color: var(--ink); background: var(--paper); font-family: 'DM Sans', sans-serif; }
+h1, h2, h3, button, nav { font-family: 'Space Grotesk', sans-serif; }
+button, a { -webkit-tap-highlight-color: transparent; }
+::selection { background: var(--yellow); color: var(--ink); }
+.noise { position: relative; }
+.noise::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .035; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.3'/%3E%3C/svg%3E"); }
+.card { border: 1px solid var(--line); background: rgba(255,255,255,.55); border-radius: 14px; }
+.progress { height: 8px; border-radius: 99px; background: #e6e2d9; overflow: hidden; }
+.progress > span { display: block; height: 100%; border-radius: inherit; background: var(--yellow); }
+@media (prefers-reduced-motion: no-preference) { .rise { animation: rise .7s ease both; } .delay-1 { animation-delay: .08s } .delay-2 { animation-delay: .16s } @keyframes rise { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } } }
