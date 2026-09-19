@@ -3,9 +3,12 @@ import { useEffect, useState } from "react";
 import { Check, Clock3, Shield, X } from "lucide-react";
 import Link from "next/link";
 import { AdminUserForm } from "@/components/AdminUserForm";
+import { LogoutButton } from "@/components/LogoutButton";
 
-type Campaign = { id: string; title: string; goal_cfa: number; status: string; owner?: { full_name: string } };
+type Campaign = { id: string; title: string; goal_cfa: number; status: string; owner?: { full_name: string }; donations?: { amount_cfa: number; status: string }[] };
 const money = (value: number) => new Intl.NumberFormat("fr-FR").format(value) + " FCFA";
+const raised = (item: Campaign) => (item.donations ?? []).filter(donation => donation.status === "confirmed").reduce((sum, donation) => sum + Number(donation.amount_cfa), 0);
+const progress = (item: Campaign) => Math.min(100, Math.round((raised(item) / item.goal_cfa) * 100));
 
 export default function AdminPage() {
   const [items, setItems] = useState<Campaign[]>([]);
@@ -34,6 +37,7 @@ export default function AdminPage() {
       <p className="mt-14 rounded-lg bg-white/10 px-4 py-3 text-sm font-semibold">Vue d'ensemble</p>
       <p className="px-4 py-3 text-sm text-white/50">Campagnes</p>
       <p className="px-4 py-3 text-sm text-white/50">Utilisateurs</p>
+      <div className="mt-auto"><LogoutButton /></div>
     </aside>
     <section className="md:ml-64">
       <header className="border-b border-[#d9d6cd] bg-[#f6f4ef] px-5 py-6 lg:px-10">
@@ -48,7 +52,7 @@ export default function AdminPage() {
           <Stat icon={<Shield size={18}/>} label="Publiées" value={String(items.filter(item => item.status === "published").length)}/>
           <Stat icon={<Check size={18}/>} label="Total" value={String(items.length)}/>
         </div>
-        <div className="overflow-x-auto rounded-2xl border border-[#d9d6cd] bg-[#f6f4ef] p-5"><table className="w-full min-w-[650px] text-left text-sm"><thead className="border-b border-[#d9d6cd] text-xs uppercase text-[#77746d]"><tr><th className="pb-3">Projet</th><th className="pb-3">Porteur</th><th className="pb-3">Objectif</th><th className="pb-3">Statut</th><th className="pb-3">Action</th></tr></thead><tbody>{items.map(item => <tr key={item.id} className="border-b border-[#e5e1d8]"><td className="py-4 font-semibold">{item.title}</td><td className="py-4 text-[#77746d]">{item.owner?.full_name || "Utilisateur"}</td><td className="py-4">{money(item.goal_cfa)}</td><td className="py-4">{item.status}</td><td className="py-4">{item.status === "pending" && <div className="flex gap-2"><button onClick={() => update(item.id, "published")} aria-label="Valider" className="rounded-full bg-[#dcebd8] p-2"><Check size={15}/></button><button onClick={() => update(item.id, "rejected")} aria-label="Refuser" className="rounded-full bg-[#f1d8d2] p-2"><X size={15}/></button></div>}</td></tr>)}</tbody></table></div>
+        <div className="overflow-x-auto rounded-2xl border border-[#d9d6cd] bg-[#f6f4ef] p-5"><table className="w-full min-w-[760px] text-left text-sm"><thead className="border-b border-[#d9d6cd] text-xs uppercase text-[#77746d]"><tr><th className="pb-3">Projet</th><th className="pb-3">Porteur</th><th className="pb-3">Progression</th><th className="pb-3">Statut</th><th className="pb-3">Action</th></tr></thead><tbody>{items.map(item => { const amount = raised(item); const percent = progress(item); const reached = amount >= item.goal_cfa; return <tr key={item.id} className="border-b border-[#e5e1d8]"><td className="py-4 font-semibold">{item.title}<span className="mt-1 block text-xs font-normal text-[#77746d]">Objectif : {money(item.goal_cfa)}</span></td><td className="py-4 text-[#77746d]">{item.owner?.full_name || "Utilisateur"}</td><td className="py-4"><span className="font-semibold">{money(amount)}</span><span className="ml-2 text-xs text-[#77746d]">{percent}%</span>{reached && <span className="mt-1 block text-xs font-bold text-green-700">Objectif atteint, contacter le porteur</span>}</td><td className="py-4">{item.status === "published" && reached ? "objectif atteint" : item.status}</td><td className="py-4">{item.status === "pending" && <div className="flex gap-2"><button onClick={() => update(item.id, "published")} aria-label="Valider" className="rounded-full bg-[#dcebd8] p-2"><Check size={15}/></button><button onClick={() => update(item.id, "rejected")} aria-label="Refuser" className="rounded-full bg-[#f1d8d2] p-2"><X size={15}/></button></div>}{item.status === "published" && <button onClick={() => update(item.id, "paused")} className="rounded-full bg-[#e7e3da] px-3 py-2 text-xs font-bold">Mettre en pause</button>}</td></tr>; })}</tbody></table></div>
         </>}
       </div>
     </section>
