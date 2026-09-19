@@ -1,2 +1,2 @@
 import type { MetadataRoute } from "next";
-export default function robots(): MetadataRoute.Robots { return { rules: { userAgent: "*", allow: "/" }, sitemap: "https://askaan.vercel.app/sitemap.xml" }; }
+export default function robots(): MetadataRoute.Robots { const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://askaan.vercel.app"; return { rules: { userAgent: "*", allow: "/", disallow: ["/admin", "/api/"] }, sitemap: `${baseUrl}/sitemap.xml` }; }
