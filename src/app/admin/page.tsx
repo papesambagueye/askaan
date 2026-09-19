@@ -41,8 +41,7 @@ export default function AdminPage() {
     </aside>
     <section className="md:ml-64">
       <header className="border-b border-[#d9d6cd] bg-[#f6f4ef] px-5 py-6 lg:px-10">
-        <p className="text-xs font-bold uppercase tracking-widest text-[#77746d]">Administration réelle</p>
-        <h1 className="mt-1 text-2xl font-bold">Campagnes à valider</h1>
+        <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-widest text-[#77746d]">Administration réelle</p><h1 className="mt-1 text-2xl font-bold">Campagnes à valider</h1></div><div className="rounded-full bg-[#161616] md:hidden"><LogoutButton /></div></div>
       </header>
       <div className="space-y-8 px-5 py-8 lg:px-10">
         <AdminUserForm />
