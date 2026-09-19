@@ -65,6 +65,11 @@ create policy "users create own campaigns" on public.campaigns for insert with c
 create policy "owners update pending campaigns" on public.campaigns for update using (owner_id = auth.uid() and status = 'pending') with check (owner_id = auth.uid());
 create policy "admins manage campaigns" on public.campaigns for all using (public.is_admin()) with check (public.is_admin());
 create policy "users read own profile" on public.profiles for select using (id = auth.uid() or public.is_admin());
+grant select on public.profiles to authenticated;
+grant select on public.campaigns to anon, authenticated;
+grant insert, update on public.campaigns to authenticated;
+grant select, insert on public.donations to authenticated;
+grant select on public.campaign_updates to anon, authenticated;
 create policy "admins read donations" on public.donations for select using (public.is_admin() or donor_id = auth.uid());
 create policy "authenticated create donations" on public.donations for insert with check (auth.uid() is not null and (donor_id = auth.uid() or donor_id is null));
 create policy "public can read published updates" on public.campaign_updates for select using (exists (select 1 from public.campaigns where id = campaign_id and status = 'published'));
