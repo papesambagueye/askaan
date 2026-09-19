@@ -6,11 +6,12 @@ export function AdminSecretAccess({ children, className, ...buttonProps }: React
   const router = useRouter();
   const clicks = useRef(0);
   const reset = useRef<ReturnType<typeof setTimeout> | null>(null);
-  function handleClick() {
+  function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
     clicks.current += 1;
     if (reset.current) clearTimeout(reset.current);
     if (clicks.current === 3) { clicks.current = 0; router.push("/admin"); return; }
     reset.current = setTimeout(() => { clicks.current = 0; }, 700);
   }
-  return <button type="button" onClick={handleClick} className={className} aria-label="ASKAAN" {...buttonProps}>{children}</button>;
+  return <button type="button" onClick={handleClick} className={className} aria-label="Accès sécurisé" title="Accès sécurisé" {...buttonProps}>{children}</button>;
 }
