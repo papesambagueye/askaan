@@ -1,0 +1,4 @@
+import { NextResponse } from "next/server";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
+async function authorize() { const supabase = await getSupabaseServerClient(); const { data: { user } } = await supabase.auth.getUser(); if (!user) return { supabase, user: null, profile: null }; const { data: profile } = await supabase.from("profiles").select("role, full_name").eq("id", user.id).single(); return { supabase, user, profile }; }
+export async function GET() { const { supabase, user, profile } = await authorize(); if (!user || !profile || !["admin", "super_admin"].includes(profile.role)) return NextResponse.json({ error: "Accès refusé" }, { status: 403 }); const { data, error } = await supabase.from("campaigns").select("*, profiles(full_name), donations(amount_cfa, status)").order("created_at", { ascending: false }); if (error) return NextResponse.json({ error: error.message }, { status: 400 }); return NextResponse.json({ campaigns: data }); }
