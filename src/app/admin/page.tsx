@@ -4,7 +4,7 @@ import { Check, Clock3, Shield, X } from "lucide-react";
 import Link from "next/link";
 import { AdminUserForm } from "@/components/AdminUserForm";
 
-type Campaign = { id: string; title: string; goal_cfa: number; status: string; profiles?: { full_name: string } };
+type Campaign = { id: string; title: string; goal_cfa: number; status: string; owner?: { full_name: string } };
 const money = (value: number) => new Intl.NumberFormat("fr-FR").format(value) + " FCFA";
 
 export default function AdminPage() {
@@ -48,7 +48,7 @@ export default function AdminPage() {
           <Stat icon={<Shield size={18}/>} label="Publiées" value={String(items.filter(item => item.status === "published").length)}/>
           <Stat icon={<Check size={18}/>} label="Total" value={String(items.length)}/>
         </div>
-        <div className="overflow-x-auto rounded-2xl border border-[#d9d6cd] bg-[#f6f4ef] p-5"><table className="w-full min-w-[650px] text-left text-sm"><thead className="border-b border-[#d9d6cd] text-xs uppercase text-[#77746d]"><tr><th className="pb-3">Projet</th><th className="pb-3">Porteur</th><th className="pb-3">Objectif</th><th className="pb-3">Statut</th><th className="pb-3">Action</th></tr></thead><tbody>{items.map(item => <tr key={item.id} className="border-b border-[#e5e1d8]"><td className="py-4 font-semibold">{item.title}</td><td className="py-4 text-[#77746d]">{item.profiles?.full_name || "Utilisateur"}</td><td className="py-4">{money(item.goal_cfa)}</td><td className="py-4">{item.status}</td><td className="py-4">{item.status === "pending" && <div className="flex gap-2"><button onClick={() => update(item.id, "published")} aria-label="Valider" className="rounded-full bg-[#dcebd8] p-2"><Check size={15}/></button><button onClick={() => update(item.id, "rejected")} aria-label="Refuser" className="rounded-full bg-[#f1d8d2] p-2"><X size={15}/></button></div>}</td></tr>)}</tbody></table></div>
+        <div className="overflow-x-auto rounded-2xl border border-[#d9d6cd] bg-[#f6f4ef] p-5"><table className="w-full min-w-[650px] text-left text-sm"><thead className="border-b border-[#d9d6cd] text-xs uppercase text-[#77746d]"><tr><th className="pb-3">Projet</th><th className="pb-3">Porteur</th><th className="pb-3">Objectif</th><th className="pb-3">Statut</th><th className="pb-3">Action</th></tr></thead><tbody>{items.map(item => <tr key={item.id} className="border-b border-[#e5e1d8]"><td className="py-4 font-semibold">{item.title}</td><td className="py-4 text-[#77746d]">{item.owner?.full_name || "Utilisateur"}</td><td className="py-4">{money(item.goal_cfa)}</td><td className="py-4">{item.status}</td><td className="py-4">{item.status === "pending" && <div className="flex gap-2"><button onClick={() => update(item.id, "published")} aria-label="Valider" className="rounded-full bg-[#dcebd8] p-2"><Check size={15}/></button><button onClick={() => update(item.id, "rejected")} aria-label="Refuser" className="rounded-full bg-[#f1d8d2] p-2"><X size={15}/></button></div>}</td></tr>)}</tbody></table></div>
         </>}
       </div>
     </section>

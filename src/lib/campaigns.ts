@@ -4,9 +4,9 @@ export type Campaign = { id: string; title: string; description: string; categor
 
 export async function getPublishedCampaigns(): Promise<Campaign[]> {
   const supabase = await getSupabaseServerClient();
-  const { data, error } = await supabase.from("campaigns").select("*, profiles(full_name), campaign_public_stats(raised_cfa, supporters)").eq("status", "published").order("created_at", { ascending: false });
+  const { data, error } = await supabase.from("campaigns").select("*, owner:profiles!campaigns_owner_id_fkey(full_name), campaign_public_stats(raised_cfa, supporters)").eq("status", "published").order("created_at", { ascending: false });
   if (error) { console.error("Unable to load published campaigns", error.message); return []; }
-  return (data ?? []).map((campaign: any) => ({ ...campaign, owner_name: campaign.profiles?.full_name ?? "", raised_cfa: Number(campaign.campaign_public_stats?.[0]?.raised_cfa ?? 0), supporters: Number(campaign.campaign_public_stats?.[0]?.supporters ?? 0) }));
+  return (data ?? []).map((campaign: any) => ({ ...campaign, owner_name: campaign.owner?.full_name ?? "", raised_cfa: Number(campaign.campaign_public_stats?.[0]?.raised_cfa ?? 0), supporters: Number(campaign.campaign_public_stats?.[0]?.supporters ?? 0) }));
 }
 export async function getCampaign(id: string) { const campaigns = await getPublishedCampaigns(); return campaigns.find(campaign => campaign.id === id) ?? null; }
 export async function getCampaignUpdates(id: string) { const supabase = await getSupabaseServerClient(); const { data, error } = await supabase.from("campaign_updates").select("id, title, body, created_at").eq("campaign_id", id).order("created_at", { ascending: false }); if (error) { console.error("Unable to load campaign updates", error.message); return []; } return data ?? []; }
