@@ -4,6 +4,11 @@ create type public.campaign_status as enum ('pending', 'published', 'rejected', 
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null default '',
+  first_name text not null default '',
+  last_name text not null default '',
+  phone text not null default '',
+  whatsapp boolean not null default false,
+  contact_email text,
   role public.user_role not null default 'user',
   created_at timestamptz not null default now()
 );
@@ -44,7 +49,7 @@ create index campaigns_status_idx on public.campaigns(status, created_at desc);
 create index donations_campaign_idx on public.donations(campaign_id, status);
 create index campaign_updates_idx on public.campaign_updates(campaign_id, created_at desc);
 
-create or replace view public.campaign_public_stats with (security_invoker = true) as
+create or replace view public.campaign_public_stats as
 select c.id as campaign_id,
   coalesce(sum(d.amount_cfa) filter (where d.status = 'confirmed'), 0)::bigint as raised_cfa,
   count(distinct coalesce(d.donor_id::text, d.id::text)) filter (where d.status = 'confirmed')::integer as supporters
@@ -82,3 +87,10 @@ create policy "authenticated upload campaign images" on storage.objects for inse
 
 -- Execute once after creating your own account, replacing the email:
 -- update public.profiles set role = 'super_admin' where id = (select id from auth.users where email = 'admin@example.com');
+
+-- Migration for an existing database:
+-- alter table public.profiles add column if not exists first_name text not null default '';
+-- alter table public.profiles add column if not exists last_name text not null default '';
+-- alter table public.profiles add column if not exists phone text not null default '';
+-- alter table public.profiles add column if not exists whatsapp boolean not null default false;
+-- alter table public.profiles add column if not exists contact_email text;
