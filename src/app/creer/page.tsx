@@ -106,6 +106,8 @@ export default function CreatePage() {
             <br />
             <span className="text-[#b08b00]">à votre élan.</span>
           </h1>
+          <p className="mt-4 max-w-xl text-sm text-[#77746d]">Vous devez être connecté pour soumettre une collecte. Vos coordonnées resteront accessibles uniquement à l&apos;équipe ASKAAN.</p>
+          <Link href="/connexion?next=%2Fcreer" className="mt-4 inline-flex rounded-full border border-[#d9d6cd] px-4 py-2 text-sm font-semibold">Se connecter avant de commencer</Link>
         </div>
         <form onSubmit={submit} className="space-y-7">
           <section className="space-y-5 rounded-2xl border border-[#d9d6cd] bg-white/40 p-5">
@@ -196,7 +198,7 @@ export default function CreatePage() {
               JPG, PNG ou WebP, 5 Mo maximum.
             </span>
           </label>
-          {error && <p className="text-sm text-red-700">{error}</p>}
+          {error && <div className="rounded-xl bg-[#f1d8d2] p-4 text-sm text-red-800"><p>{error}</p>{error.includes("Connexion") && <Link href="/connexion?next=%2Fcreer" className="mt-2 inline-block font-bold underline">Se connecter puis revenir à la création</Link>}</div>}
           <button
             disabled={loading}
             className="flex items-center gap-2 rounded-full bg-[#f7c844] px-5 py-3 text-sm font-bold disabled:opacity-50"
