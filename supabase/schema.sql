@@ -72,7 +72,7 @@ create policy "admins manage campaigns" on public.campaigns for all using (publi
 create policy "users read own profile" on public.profiles for select using (id = auth.uid() or public.is_admin());
 grant select on public.profiles to authenticated;
 grant select on public.campaigns to anon, authenticated;
-grant insert, update on public.campaigns to authenticated;
+grant insert, update, delete on public.campaigns to authenticated;
 grant select, insert on public.donations to authenticated;
 grant select on public.campaign_updates to anon, authenticated;
 create policy "admins read donations" on public.donations for select using (public.is_admin() or donor_id = auth.uid());
