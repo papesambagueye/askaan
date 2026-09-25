@@ -10,7 +10,7 @@ export function AdminSecretAccess({ children, className, ...buttonProps }: React
     event.preventDefault();
     clicks.current += 1;
     if (reset.current) clearTimeout(reset.current);
-    if (clicks.current === 3) { clicks.current = 0; router.push("/admin"); return; }
+    if (clicks.current === 3) { clicks.current = 0; router.push("/connexion?next=%2Fadmin"); return; }
     reset.current = setTimeout(() => { clicks.current = 0; }, 700);
   }
   return <button type="button" onClick={handleClick} className={className} aria-label="Accès sécurisé" title="Accès sécurisé" {...buttonProps}>{children}</button>;
