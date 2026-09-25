@@ -1,5 +1,6 @@
 create type public.user_role as enum ('user', 'admin', 'super_admin');
 create type public.campaign_status as enum ('pending', 'published', 'rejected', 'paused');
+create type public.donation_status as enum ('pending', 'confirmed', 'failed', 'refunded');
 
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
@@ -9,6 +10,7 @@ create table public.profiles (
   phone text not null default '',
   whatsapp boolean not null default false,
   contact_email text,
+  phone_verified_at timestamptz,
   role public.user_role not null default 'user',
   created_at timestamptz not null default now()
 );
@@ -34,7 +36,9 @@ create table public.donations (
   donor_id uuid references public.profiles(id) on delete set null,
   amount_cfa bigint not null check (amount_cfa > 0),
   payment_reference text unique,
-  status text not null default 'confirmed' check (status in ('pending', 'confirmed', 'cancelled')),
+  status public.donation_status not null default 'pending',
+  provider text,
+  provider_payload jsonb,
   created_at timestamptz not null default now()
 );
 create table public.campaign_updates (
@@ -45,9 +49,28 @@ create table public.campaign_updates (
   body text not null check (char_length(body) between 10 and 5000),
   created_at timestamptz not null default now()
 );
+create table public.notifications (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  type text not null,
+  title text not null,
+  body text not null,
+  read_at timestamptz,
+  created_at timestamptz not null default now()
+);
+create table public.admin_audit_logs (
+  id uuid primary key default gen_random_uuid(),
+  actor_id uuid not null references public.profiles(id) on delete restrict,
+  action text not null,
+  campaign_id uuid references public.campaigns(id) on delete set null,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
 create index campaigns_status_idx on public.campaigns(status, created_at desc);
 create index donations_campaign_idx on public.donations(campaign_id, status);
 create index campaign_updates_idx on public.campaign_updates(campaign_id, created_at desc);
+create index notifications_user_idx on public.notifications(user_id, created_at desc);
+create index admin_audit_logs_idx on public.admin_audit_logs(created_at desc);
 
 create or replace view public.campaign_public_stats as
 select c.id as campaign_id,
@@ -65,6 +88,8 @@ alter table public.profiles enable row level security;
 alter table public.campaigns enable row level security;
 alter table public.donations enable row level security;
 alter table public.campaign_updates enable row level security;
+alter table public.notifications enable row level security;
+alter table public.admin_audit_logs enable row level security;
 create policy "public can read published campaigns" on public.campaigns for select using (status = 'published' or owner_id = auth.uid() or public.is_admin());
 create policy "users create own campaigns" on public.campaigns for insert with check (owner_id = auth.uid());
 create policy "owners update pending campaigns" on public.campaigns for update using (owner_id = auth.uid() and status = 'pending') with check (owner_id = auth.uid());
@@ -79,6 +104,13 @@ create policy "admins read donations" on public.donations for select using (publ
 create policy "authenticated create donations" on public.donations for insert with check (auth.uid() is not null and (donor_id = auth.uid() or donor_id is null));
 create policy "public can read published updates" on public.campaign_updates for select using (exists (select 1 from public.campaigns where id = campaign_id and status = 'published'));
 create policy "admins manage campaign updates" on public.campaign_updates for all using (public.is_admin()) with check (public.is_admin());
+create policy "users read own notifications" on public.notifications for select using (user_id = auth.uid() or public.is_admin());
+create policy "users update own notifications" on public.notifications for update using (user_id = auth.uid()) with check (user_id = auth.uid());
+create policy "admins read audit logs" on public.admin_audit_logs for select using (public.is_admin());
+create policy "owners read own updates" on public.campaign_updates for select using (author_id = auth.uid() or exists (select 1 from public.campaigns where id = campaign_id and status = 'published'));
+create policy "owners create own updates" on public.campaign_updates for insert with check (author_id = auth.uid() and exists (select 1 from public.campaigns where id = campaign_id and owner_id = auth.uid()));
+grant select, update on public.notifications to authenticated;
+grant select on public.admin_audit_logs to authenticated;
 grant select on public.campaign_public_stats to anon, authenticated;
 
 insert into storage.buckets (id, name, public) values ('campaign-images', 'campaign-images', true) on conflict (id) do nothing;
@@ -94,3 +126,10 @@ create policy "authenticated upload campaign images" on storage.objects for inse
 -- alter table public.profiles add column if not exists phone text not null default '';
 -- alter table public.profiles add column if not exists whatsapp boolean not null default false;
 -- alter table public.profiles add column if not exists contact_email text;
+-- alter table public.profiles add column if not exists phone_verified_at timestamptz;
+-- alter table public.donations add column if not exists provider text;
+-- alter table public.donations add column if not exists provider_payload jsonb;
+-- alter table public.donations alter column status type text;
+-- update public.donations set status = 'failed' where status = 'cancelled';
+-- alter table public.donations drop constraint if exists donations_status_check;
+-- alter table public.donations add constraint donations_status_check check (status in ('pending', 'confirmed', 'failed', 'refunded'));

@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function PrivacyPage() { return <main className="mx-auto max-w-3xl px-5 py-16"><Link href="/" className="text-sm underline">Retour à l&apos;accueil</Link><h1 className="mt-12 text-4xl font-bold">Politique de confidentialité</h1><p className="mt-6 leading-relaxed text-[#555]">Les coordonnées des créateurs sont utilisées pour la gestion et le suivi des collectes. Elles ne sont pas publiées. Les visiteurs peuvent participer sans créer de compte.</p></main>; }

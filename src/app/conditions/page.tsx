@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function TermsPage() { return <main className="mx-auto max-w-3xl px-5 py-16"><Link href="/" className="text-sm underline">Retour à l&apos;accueil</Link><h1 className="mt-12 text-4xl font-bold">Conditions d&apos;utilisation</h1><p className="mt-6 leading-relaxed text-[#555]">ASKAAN publie les collectes après vérification. Les paiements sont effectués via les services indiqués par le porteur. ASKAAN peut suspendre une collecte en cas d&apos;information inexacte ou d&apos;usage abusif.</p></main>; }
