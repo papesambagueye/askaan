@@ -107,7 +107,7 @@ export default function CreatePage() {
             <span className="text-[#b08b00]">à votre élan.</span>
           </h1>
           <p className="mt-4 max-w-xl text-sm text-[#77746d]">Vous devez être connecté pour soumettre une collecte. Vos coordonnées resteront accessibles uniquement à l&apos;équipe ASKAAN.</p>
-          <Link href="/connexion?next=%2Fcreer" className="mt-4 inline-flex rounded-full border border-[#d9d6cd] px-4 py-2 text-sm font-semibold">Se connecter avant de commencer</Link>
+          <div className="mt-4 flex flex-wrap gap-3"><Link href="/connexion?next=%2Fcreer" className="inline-flex rounded-full border border-[#d9d6cd] px-4 py-2 text-sm font-semibold">J&apos;ai déjà un compte</Link><Link href="/inscription" className="inline-flex rounded-full bg-[#161616] px-4 py-2 text-sm font-semibold text-white">Créer un compte créateur</Link></div>
         </div>
         <form onSubmit={submit} className="space-y-7">
           <section className="space-y-5 rounded-2xl border border-[#d9d6cd] bg-white/40 p-5">
